@@ -1,0 +1,155 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+
+namespace students
+{
+    public partial class Student_information : Form
+    {
+        public XmlSerializer formatter = new XmlSerializer(typeof(Student[]));
+        public Student[] newStudents;
+        public Student_information()
+        {
+            InitializeComponent();
+        }
+
+        private List<Student> GetStudents()
+        {
+            using (FileStream fs = new FileStream(@"res\students.xml", FileMode.OpenOrCreate))
+            {
+                newStudents = (Student[])formatter.Deserialize(fs);
+            }
+
+            var list = newStudents.Cast<Student>().ToList();
+            return list;
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            studentsTable.DataSource = GetStudents();
+        }
+
+        private void marksButton_Click(object sender, EventArgs e)
+        {
+            Rating form3 = new Rating();
+            form3.Show();
+        }
+
+        private void addStudentButton_Click(object sender, EventArgs e)
+        {
+            Addition form5 = new Addition();
+            form5.Show();
+        }
+
+        private void deleteStudentButton_Click(object sender, EventArgs e)
+        {
+            Deletion form4 = new Deletion();
+            form4.Show();
+        }
+
+        private void updateButton_Click(object sender, EventArgs e)
+        {
+            var list = GetStudents().Cast<Student>().ToList();
+            bool canContinue = false;
+            foreach (Student s in list.ToArray())
+            {
+                if (Addition.surnameToAdd.Equals(s.Surname))
+                {
+                    MessageBox.Show("Пожалуйста, введите другую фамилию, такая фамилия уже есть!");
+                }
+            }
+
+            
+            if (Addition.courseToAdd < 1 || Addition.courseToAdd > 4)
+            {
+                MessageBox.Show("Пожалуйста, введите правильный курс(от 1 до 4)!");
+            }
+            else if (Addition.gradeBookIDToAdd < 1 || Addition.gradeBookIDToAdd > 100)
+            {
+                MessageBox.Show("Пожалуйста, введите правильный номер зачетки(от 1 до 100)!");
+            }
+            else
+            {
+                canContinue = true;
+            }
+
+            if (canContinue)
+            {
+                Student student = new Student();
+                student.Surname = Addition.surnameToAdd;
+                student.Name = Addition.nameToAdd;
+                student.Group = Addition.groupToAdd;
+                student.Course = Addition.courseToAdd;
+                student.GradeBookID = Addition.gradeBookIDToAdd;
+                list.Add(student);
+                File.Delete(@"res\students.xml");
+
+                using (FileStream fstr = new FileStream(@"res\students.xml", FileMode.OpenOrCreate))
+                {
+                    formatter.Serialize(fstr, list.ToArray());
+                }
+
+                studentsTable.DataSource = list;
+            }
+            else
+            {
+                MessageBox.Show("Произошла ошибка!");
+            }
+        }
+
+        private void sortAscendButton_Click(object sender, EventArgs e)
+        {
+            var sortedStudents = GetStudents().OrderBy(s => s.Surname).Cast<Student>().ToList(); ;
+            studentsTable.DataSource = null;
+            studentsTable.DataSource = sortedStudents;
+        }
+
+        private void sortDescendButton_Click(object sender, EventArgs e)
+        {
+            var sortedStudents = GetStudents().OrderByDescending(s => s.Surname).Cast<Student>().ToList(); ;
+            studentsTable.DataSource = null;
+            studentsTable.DataSource = sortedStudents;
+        }
+
+        private void updateButton2_Click(object sender, EventArgs e)
+        {
+            var list = GetStudents().Cast<Student>().ToList();
+            bool isInList = false;
+            foreach (Student s in list.ToArray())
+            {
+                if (s.Surname == Deletion.surnameToDelete)
+                {
+                    list.Remove(s);
+                    isInList = true;
+                }
+            }
+
+            if (isInList == false)
+            {
+                MessageBox.Show("Пожалуйста, введите фамилию из списка!");
+            }
+
+            File.Delete(@"res\students.xml");
+
+            using (FileStream fstr = new FileStream(@"res\students.xml", FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fstr, list.ToArray());
+            }
+
+            studentsTable.DataSource = list;
+        }
+
+        private void studentsTable_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+    }
+}
