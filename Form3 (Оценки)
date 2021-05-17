@@ -1,0 +1,143 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
+
+namespace students
+{
+    public partial class Rating : Form
+    {
+        public XmlSerializer formatter = new XmlSerializer(typeof(StudentsMark[]));
+        public StudentsMark[] newStudentsMarks;
+
+        public Rating()
+        {
+            InitializeComponent();
+        }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+            marksTable.DataSource = GetMarks();
+        }
+
+        private List<StudentsMark> GetMarks()
+        {
+            using (FileStream fs = new FileStream(@"res\marks.xml", FileMode.OpenOrCreate))
+            {
+                newStudentsMarks = (StudentsMark[])formatter.Deserialize(fs);
+            }
+
+            var list = newStudentsMarks.Cast<StudentsMark>().ToList();
+            return list;
+        }
+        private void addMarksButton_Click(object sender, EventArgs e)
+        {
+            Grades_chart form6 = new Grades_chart();
+            form6.Show();
+        }
+
+        private void deleteMarksButton_Click(object sender, EventArgs e)
+        {
+            Deletion form4 = new Deletion();
+            form4.Show();
+        }
+
+        private void updateMarksButton_Click(object sender, EventArgs e)
+        {
+            var list = GetMarks().Cast<StudentsMark>().ToList();
+            bool canContinue = false;
+            foreach (StudentsMark m in list.ToArray())
+            {
+                if (Grades_chart.surname.Equals(m.Surname))
+                {
+                    MessageBox.Show("Пожалуйста, введите другую фамилию!");
+                }
+            }
+
+            if (Grades_chart.marks.Length == 0)
+            {
+                MessageBox.Show("Пожалуйста, введите оценки");
+            }
+            else if (Grades_chart.rating < 1 || Grades_chart.rating > 100)
+            {
+                MessageBox.Show("Пожалуйста, введите правильный рейтинг(от 1 до 100)!");
+            }
+            else
+            {
+                canContinue = true;
+            }
+
+            if (canContinue)
+            {
+                StudentsMark studentsMark = new StudentsMark();
+                studentsMark.Surname = Grades_chart.surname;
+                studentsMark.Marks = Grades_chart.marks;
+                studentsMark.Rating = Grades_chart.rating;
+                list.Add(studentsMark);
+                File.Delete(@"res\marks.xml");
+
+                using (FileStream fstr = new FileStream(@"res\marks.xml", FileMode.OpenOrCreate))
+                {
+                    formatter.Serialize(fstr, list.ToArray());
+                }
+
+                marksTable.DataSource = list;
+            }
+            else
+            {
+                MessageBox.Show("Произошла ошибка!");
+            }
+        }
+
+        private void sortAscendButton_Click(object sender, EventArgs e)
+        {
+            var sortedMarks = GetMarks().OrderBy(s => s.Rating).Cast<StudentsMark>().ToList(); ;
+            marksTable.DataSource = null;
+            marksTable.DataSource = sortedMarks;
+        }
+
+        private void sortDescentButton_Click(object sender, EventArgs e)
+        {
+            var sortedMarks = GetMarks().OrderByDescending(s => s.Rating).Cast<StudentsMark>().ToList(); ;
+            marksTable.DataSource = null;
+            marksTable.DataSource = sortedMarks;
+        }
+
+        private void updateButton2_Click(object sender, EventArgs e)
+        {
+            var list = GetMarks().Cast<StudentsMark>().ToList();
+            bool isInList = false;
+            foreach (StudentsMark m in list.ToArray())
+            {
+                if (m.Surname.Equals(Deletion.surnameToDelete))
+                {
+                    list.Remove(m);
+                    isInList = true;
+                }
+            }
+
+            if (isInList == false)
+            {
+                MessageBox.Show("Пожалуйста, введите фамилию из списка!");
+            }
+
+            File.Delete(@"res\marks.xml");
+
+            using (FileStream fstr = new FileStream(@"res\marks.xml", FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fstr, list.ToArray());
+            }
+
+            marksTable.DataSource = list;
+        }
+    }
+}
