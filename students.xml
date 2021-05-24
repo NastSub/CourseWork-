@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ArrayOfStudent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Student>
+    <GradeBookID>45</GradeBookID>
+    <Surname>Алексеева</Surname>
+    <Name>Дарья</Name>
+    <Group>192-1</Group>
+    <Course>2</Course>
+    <Rating>9</Rating>
+    <Notes />
+  </Student>
+  <Student>
+    <GradeBookID>56</GradeBookID>
+    <Surname>Бравсевич</Surname>
+    <Name>Анна</Name>
+    <Group>192-2</Group>
+    <Course>2</Course>
+    <Rating>8</Rating>
+    <Notes />
+  </Student>
+  <Student>
+    <GradeBookID>98</GradeBookID>
+    <Surname>Гуцко</Surname>
+    <Name>Татьяна</Name>
+    <Group>192-2</Group>
+    <Course>2</Course>
+    <Rating>9</Rating>
+    <Notes />
+  </Student>
+  <Student>
+    <GradeBookID>63</GradeBookID>
+    <Surname>Слюсарева</Surname>
+    <Name>Виктория</Name>
+    <Group>191</Group>
+    <Course>2</Course>
+    <Rating>6</Rating>
+    <Notes />
+  </Student>
+</ArrayOfStudent>
